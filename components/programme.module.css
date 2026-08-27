@@ -1,0 +1,122 @@
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.slot {
+  --slot-pad: clamp(1.5rem, 3.5vw, 2.5rem);
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  column-gap: clamp(1rem, 3vw, 1.75rem);
+  row-gap: 0.75rem;
+  padding-block: var(--slot-pad);
+  position: relative;
+}
+
+/* The spine: a hairline running the height of the slot, capped at both ends. */
+.marker {
+  grid-row: 1 / -1;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.marker::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--slot-pad) * -1);
+  bottom: calc(var(--slot-pad) * -1);
+  width: 1px;
+  background: var(--rule);
+}
+
+.slot:first-child .marker::before {
+  top: 10px;
+}
+
+.slot:last-child .marker::before {
+  bottom: calc(100% - 10px);
+}
+
+.node {
+  position: absolute;
+  top: 6px;
+  width: 9px;
+  height: 9px;
+  background: var(--bg);
+  border: 1px solid var(--rule-strong);
+}
+
+.slot:last-child .node {
+  background-image: var(--orange-gradient);
+  border-color: transparent;
+}
+
+.when {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  align-items: baseline;
+}
+
+.time {
+  font-variant-numeric: tabular-nums;
+}
+
+.what {
+  grid-column: 2;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.title {
+  font-size: clamp(1.75rem, 6vw, 3rem);
+  line-height: 0.95;
+}
+
+.body {
+  color: var(--dim);
+  max-width: 46ch;
+}
+
+@media (min-width: 900px) {
+  .slot {
+    grid-template-columns: 220px 22px minmax(0, 1fr);
+    align-items: start;
+    column-gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .marker {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: stretch;
+  }
+
+  .when {
+    grid-column: 1;
+    grid-row: 1;
+    flex-direction: column;
+    gap: 0.4rem;
+    text-align: right;
+    align-items: flex-end;
+    padding-top: 0.2rem;
+  }
+
+  .what {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .slot::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .slot:first-child::after {
+    display: none;
+  }
+}

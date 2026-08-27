@@ -1,0 +1,127 @@
+.panel {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 1.5rem;
+  padding: clamp(1.1rem, 3vw, 2rem) var(--gutter) calc(clamp(1.1rem, 3vw, 2rem) + env(safe-area-inset-bottom));
+  background-color: var(--ink);
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(244, 241, 234, 0.05) 0 1px,
+    transparent 1px 16px
+  );
+  color: var(--paper);
+  overflow: hidden;
+  will-change: transform;
+  transition:
+    transform 0.64s cubic-bezier(0.76, 0, 0.24, 1),
+    opacity 0.4s var(--ease) 0.24s;
+
+  /*
+   * Failsafe. If the bundle never executes, nothing would remove this panel and
+   * the page would be unreachable behind it — so CSS clears it on its own. The
+   * component cancels this the moment it takes over (.leaving sets animation:
+   * none), so the two can never fight.
+   */
+  animation: preloaderFailsafe 0.01s linear 4s forwards;
+}
+
+@keyframes preloaderFailsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Exit: the panel lifts off the top of the screen. */
+.leaving {
+  animation: none;
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Rail --------------------------------------------------------------------- */
+
+.rail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: clamp(0.9rem, 2vw, 1.25rem);
+  border-bottom: 1px solid var(--rule);
+}
+
+/* Middle ------------------------------------------------------------------- */
+
+.middle {
+  display: grid;
+  align-content: center;
+  gap: 0.6rem;
+}
+
+.word {
+  font-size: clamp(2.75rem, min(11vw, 15vh), 8rem);
+  line-height: 0.86;
+}
+
+.wordAccent {
+  background: var(--orange-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Foot --------------------------------------------------------------------- */
+
+.foot {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.status {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.count {
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  line-height: 1;
+  /* Tabular figures: the counter must not reflow as digits change. */
+  font-variant-numeric: tabular-nums;
+}
+
+.pct {
+  font-size: 0.45em;
+  margin-left: 0.2em;
+  color: var(--dim);
+}
+
+.track {
+  position: relative;
+  height: 2px;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left;
+  background: var(--orange-gradient);
+}
+
+/* Reduced motion: no lift, no scale — the panel simply clears. */
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    transition: opacity 0.2s linear;
+  }
+
+  .leaving {
+    transform: none;
+  }
+}

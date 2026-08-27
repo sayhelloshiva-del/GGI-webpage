@@ -1,0 +1,9 @@
+.logo {
+  /*
+   * Deliberately no width/height here: the width and height attributes
+   * next/image renders are the mark's real box. A `width: auto` would let the
+   * img fall back to the natural size of whichever srcset candidate loaded,
+   * which resizes the logo depending on the device pixel ratio.
+   */
+  display: block;
+}

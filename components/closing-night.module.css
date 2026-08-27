@@ -1,0 +1,110 @@
+.section {
+  background:
+    radial-gradient(90% 70% at 10% 100%, rgba(214, 58, 0, 0.18) 0%, rgba(8, 8, 8, 0) 62%),
+    var(--ink);
+}
+
+.split {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  padding-bottom: clamp(2rem, 5vw, 3.5rem);
+}
+
+.half {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.hour {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+}
+
+.word {
+  font-size: clamp(3rem, 13vw, 8rem);
+  line-height: 0.85;
+}
+
+.wordAccent {
+  background: var(--orange-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.divider {
+  height: 1px;
+  background: var(--rule);
+}
+
+@media (min-width: 900px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+    align-items: end;
+    gap: clamp(2rem, 5vw, 4rem);
+  }
+
+  .divider {
+    height: 100%;
+    width: 1px;
+  }
+}
+
+.body {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  padding-top: clamp(1.5rem, 4vw, 2.5rem);
+  border-top: 1px solid var(--rule);
+}
+
+.bill {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  align-content: start;
+  gap: 0;
+}
+
+.billItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 0.9rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.billMark {
+  width: 7px;
+  height: 7px;
+  background-image: var(--orange-gradient);
+  flex: none;
+}
+
+.media {
+  width: 100%;
+}
+
+@media (min-width: 1000px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+    align-items: start;
+  }
+}
+
+/* The payoff line under the 4 PM / 11 PM lockup. */
+.payoff {
+  max-width: 52ch;
+  margin: clamp(1.75rem, 5vw, 3rem) 0 clamp(1.5rem, 4vw, 2.5rem);
+  color: rgba(244, 241, 234, 0.82);
+}
+
+.billNote {
+  margin-top: 0.9rem;
+}
+
+.billCol {
+  min-width: 0;
+}

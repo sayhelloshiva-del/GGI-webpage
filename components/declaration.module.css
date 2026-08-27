@@ -1,0 +1,116 @@
+.head {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  padding-bottom: clamp(2rem, 5vw, 3.5rem);
+  border-bottom: 1px solid var(--rule);
+}
+
+.sequence {
+  display: grid;
+  gap: clamp(1rem, 3vw, 2rem);
+}
+
+.line {
+  margin: 0;
+  font-weight: 800;
+}
+
+.lineAccent {
+  background: var(--orange-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (min-width: 1000px) {
+  .sequence {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(2rem, 5vw, 4rem);
+  }
+
+  .lineAccent {
+    padding-top: clamp(2rem, 6vw, 5rem);
+  }
+}
+
+.body {
+  display: grid;
+  gap: clamp(2rem, 5vw, 4rem);
+  padding-top: clamp(2rem, 5vw, 3.5rem);
+}
+
+.copy {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+}
+
+.note {
+  margin-top: 0.75rem;
+}
+
+@media (min-width: 1000px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    align-items: start;
+  }
+}
+
+/* The document ------------------------------------------------------------- */
+
+.docWrap {
+  max-width: 560px;
+  width: 100%;
+  justify-self: end;
+}
+
+.doc {
+  background: #fffdf8;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  display: grid;
+  gap: 1.25rem;
+  box-shadow: 0 24px 60px -40px rgba(8, 8, 8, 0.6);
+}
+
+.docHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.docTitle {
+  font-size: clamp(2rem, 6vw, 3rem);
+  line-height: 0.9;
+}
+
+.docLines {
+  display: grid;
+  gap: 9px;
+}
+
+.docLines span {
+  display: block;
+  height: 1px;
+  background: rgba(8, 8, 8, 0.22);
+}
+
+.signatures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+  padding-top: 0.5rem;
+  color: rgba(8, 8, 8, 0.55);
+}
+
+.signature {
+  width: 100%;
+  height: auto;
+  border-bottom: 1px solid var(--rule);
+}
+
+.docFoot {
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--rule);
+}

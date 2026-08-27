@@ -1,0 +1,59 @@
+.actions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  border-top: 1px solid var(--rule);
+}
+
+.action {
+  display: grid;
+  gap: 0.35rem;
+  padding-block: clamp(1.25rem, 3vw, 2rem);
+  border-bottom: 1px solid var(--rule);
+}
+
+.verb {
+  font-size: clamp(2.5rem, 9vw, 5rem);
+  line-height: 0.9;
+}
+
+.body {
+  color: var(--dim);
+  max-width: 34ch;
+}
+
+@media (min-width: 700px) {
+  .actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(1.5rem, 4vw, 3.5rem);
+  }
+
+  .action {
+    grid-template-columns: 3rem minmax(0, 1fr);
+    align-items: baseline;
+    column-gap: 1rem;
+  }
+
+  .action > :first-child {
+    grid-row: 1 / span 2;
+  }
+}
+
+@media (min-width: 1100px) {
+  .actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .verb {
+    font-size: clamp(2.25rem, 3.4vw, 3.5rem);
+  }
+}
+
+/* Closes the section on the deck's own three sentences. */
+.outro {
+  max-width: 54ch;
+  margin: clamp(2rem, 5vw, 3.5rem) 0 0;
+  padding-top: clamp(1.25rem, 3vw, 2rem);
+  border-top: 1px solid var(--rule);
+}

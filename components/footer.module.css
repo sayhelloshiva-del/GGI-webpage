@@ -1,0 +1,92 @@
+.footer {
+  background: var(--ink);
+  color: var(--paper);
+  border-top: 1px solid var(--rule);
+  /* The sticky mobile bar hides itself over the footer, so only the safe area
+     needs reserving here. */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.cta {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  justify-items: start;
+  padding-block: clamp(3.5rem, 9vw, 8rem);
+}
+
+.ctaTitle {
+  font-size: clamp(2.75rem, 11vw, 8rem);
+  line-height: 0.85;
+}
+
+.base {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  padding-block: clamp(2rem, 4vw, 3rem);
+  border-top: 1px solid var(--rule);
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.name {
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  line-height: 1;
+}
+
+.where {
+  display: grid;
+  gap: 0.25rem;
+  align-content: start;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.75rem;
+}
+
+.link {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dim);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.25s var(--ease);
+}
+
+.link:hover {
+  color: var(--signal);
+}
+
+@media (min-width: 900px) {
+  .base {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .links {
+    justify-content: flex-end;
+  }
+}
+
+.legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  justify-content: space-between;
+  padding-block: 1.25rem 2rem;
+  border-top: 1px solid var(--rule);
+}
+
+.ctaAction {
+  display: grid;
+  justify-items: start;
+  gap: 0.9rem;
+}

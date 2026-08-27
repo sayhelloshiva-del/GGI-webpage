@@ -1,0 +1,32 @@
+.mask {
+  display: block;
+  overflow: hidden;
+  /*
+   * The display face runs at line-height 0.86, so the glyphs are taller than
+   * their line box and `overflow: hidden` would shave the caps. The padding
+   * gives them headroom and the negative margin takes it straight back out, so
+   * the leading is unchanged and only the resting line gains clearance — the
+   * line still starts fully below the box, which is what does the masking.
+   */
+  padding-top: 0.2em;
+  margin-top: -0.2em;
+}
+
+.line {
+  display: block;
+  transform: translate3d(0, 110%, 0);
+  transition: transform 0.95s var(--ease);
+  transition-delay: calc(var(--line, 0) * 90ms + var(--reveal-delay, 0ms));
+  will-change: transform;
+}
+
+:global(.is-in) .line {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line {
+    transform: none;
+    transition: none;
+  }
+}

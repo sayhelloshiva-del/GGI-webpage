@@ -1,0 +1,406 @@
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--paper);
+  isolation: isolate;
+}
+
+/* Backdrop ----------------------------------------------------------------- */
+
+.backdrop {
+  position: absolute;
+  inset: -6% 0 0 0;
+  z-index: 0;
+}
+
+.backdropMedia {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.backdropMedia > div {
+  position: absolute;
+  inset: 0;
+  border-color: transparent;
+}
+
+.backdropMedia > div::before,
+.backdropMedia > div::after {
+  display: none;
+}
+
+/* The hairline field alone carries the empty slot here — the centred
+   "image placeholder" chip would land on top of the headline. */
+.backdropMedia > div span {
+  display: none;
+}
+
+.credit {
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--nav-h) + 1.25rem);
+  /* Tracks the right edge of the .shell content column rather than the
+     viewport, so the credit lines up with the nav on wide screens. */
+  right: max(var(--gutter), calc((100% - var(--shell-max)) / 2 + var(--gutter)));
+  display: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  margin: 0;
+  text-align: right;
+}
+
+@media (min-width: 900px) {
+  .credit {
+    display: flex;
+  }
+}
+
+/* Dark scrim + a restrained orange cast over the footage. */
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(8, 8, 8, 0.92) 0%, rgba(8, 8, 8, 0.72) 42%, rgba(8, 8, 8, 0.96) 100%),
+    linear-gradient(115deg, rgba(214, 58, 0, 0.22) 0%, rgba(8, 8, 8, 0) 55%);
+}
+
+.rules {
+  position: absolute;
+  /* Inset to the .shell content box so the six hairlines land on the same
+     column boundaries as the stats strip below and the content column beside
+     them — full-bleed rules read as noise because they line up with nothing. */
+  inset: 0 max(var(--gutter), calc((100% - var(--shell-max)) / 2 + var(--gutter)));
+  z-index: 1;
+  display: none;
+  opacity: 0.5;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--rule) 0 1px,
+    transparent 1px calc(100% / 6)
+  );
+  border-right: 1px solid var(--rule);
+}
+
+@media (min-width: 900px) {
+  .rules {
+    display: block;
+  }
+}
+
+/* Content ------------------------------------------------------------------ */
+
+.inner {
+  position: relative;
+  z-index: 2;
+  /* Height-aware: the headline, CTAs and stats strip all have to clear the
+     fold on a short laptop viewport as well as on a tall monitor. */
+  padding-top: calc(var(--nav-h) + clamp(0.7rem, 2.9vh, 4.5rem));
+  padding-bottom: clamp(1rem, 2.6vh, 3rem);
+  display: grid;
+  gap: clamp(0.65rem, 1.4vh, 1.5rem);
+  align-content: end;
+}
+
+.presents {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.presents::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  max-width: 120px;
+  background: var(--signal);
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.metaRow li {
+  position: relative;
+}
+
+/* Rules only once the row is guaranteed to sit on one line — below that the
+   gap does the separating and nothing is left hanging at a wrap. */
+@media (min-width: 560px) {
+  .metaRow li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: -0.75rem;
+    top: 50%;
+    width: 1px;
+    height: 11px;
+    transform: translateY(-50%);
+    background: var(--rule-strong);
+  }
+}
+
+.title {
+  font-size: min(var(--d-hero), 12vh);
+  margin-block: 0.25rem 0.5rem;
+  text-wrap: initial;
+}
+
+.titleAccent {
+  background: var(--orange-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.lede {
+  color: rgba(244, 241, 234, 0.86);
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.ctas > * {
+  flex: 1 1 auto;
+}
+
+@media (min-width: 480px) {
+  .ctas > * {
+    flex: 0 0 auto;
+  }
+}
+
+/* Specimen credential ------------------------------------------------------ */
+
+.credential {
+  display: none;
+  background: rgba(8, 8, 8, 0.55);
+  --glass: blur(6px);
+  -webkit-backdrop-filter: var(--glass);
+  backdrop-filter: var(--glass);
+  padding: 1.25rem;
+}
+
+.credentialHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.credentialBody {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0 0;
+}
+
+.credentialBody dd {
+  margin: 0;
+}
+
+.credentialValue {
+  font-size: 1.5rem;
+  line-height: 1;
+  margin-top: 0.2rem;
+}
+
+@media (min-width: 1024px) {
+  /* Sized so "THE ROOM WHERE" holds one line inside the left column and the
+     primary CTA still clears the fold on a 900px-tall laptop. */
+  .title {
+    font-size: clamp(3rem, min(6.6vw, 9.4vh), 7rem);
+  }
+
+  .inner {
+    row-gap: clamp(0.85rem, 1.7vh, 1.25rem);
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    column-gap: clamp(2rem, 4vw, 4.5rem);
+    grid-template-areas:
+      'presents credential'
+      'wordmark credential'
+      'metaRow  credential'
+      'title    credential'
+      'lede     credential'
+      'ctas     credential';
+  }
+
+  .presents {
+    grid-area: presents;
+  }
+
+  .wordmark {
+    grid-area: wordmark;
+  }
+
+  .metaRow {
+    grid-area: metaRow;
+  }
+
+  .title {
+    grid-area: title;
+  }
+
+  .lede {
+    grid-area: lede;
+  }
+
+  .ctas {
+    grid-area: ctas;
+  }
+
+  .credential {
+    display: block;
+    grid-area: credential;
+    align-self: end;
+    margin-bottom: 0.35rem;
+  }
+}
+
+/* Stats strip -------------------------------------------------------------- */
+
+.stats {
+  position: relative;
+  z-index: 2;
+  list-style: none;
+  /* margin-block only — a blanket `margin: 0` would cancel the horizontal
+     auto-centring .shell applies, and the strip would fall out of alignment
+     with the rest of the hero on viewports wider than --shell-max. */
+  margin-block: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.stats::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 5%;
+  width: 90%;
+  height: 1px;
+  background: var(--rule);
+}
+
+.stat {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.9rem 0.5rem 1rem;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.stat:nth-child(3n) {
+  border-right: 0;
+}
+
+/* The row is a table against the page margin: the first cell in a row sets its
+   type flush with the content column and the last sits flush with its right
+   edge, so the strip lines up with the headline above it. */
+.stat:nth-child(3n + 1) {
+  padding-left: 0;
+}
+
+.stat:nth-child(3n) {
+  padding-right: 0;
+}
+
+.stat:nth-last-child(-n + 3) {
+  border-bottom: 0;
+}
+
+.statValue {
+  font-size: clamp(1.75rem, 6vw, 2.5rem);
+  line-height: 1;
+}
+
+@media (min-width: 900px) {
+  .stats {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .stat {
+    padding: 1.1rem 0.75rem 1.25rem;
+    border-bottom: 0;
+  }
+
+  .stat:nth-child(3n) {
+    border-right: 1px solid var(--rule);
+  }
+
+  /* Six columns instead of three: the flush edges move to the ends of the row. */
+  .stat:nth-child(3n + 1),
+  .stat:nth-child(3n) {
+    padding-inline: 0.75rem;
+  }
+
+  .stat:first-child {
+    padding-left: 0;
+  }
+
+  .stat:last-child {
+    padding-right: 0;
+    border-right: 0;
+  }
+}
+
+/* Short viewports ---------------------------------------------------------- */
+
+/*
+ * Laptops sit around 700-860px of usable viewport height, which is where the
+ * hero was spilling past the fold. The headline is already tied to vh; this
+ * tightens the secondary type so the lede, both CTAs and the stats strip stay
+ * on the first screen without shrinking the headline any further.
+ */
+@media (max-height: 860px) {
+  .lede {
+    font-size: clamp(1rem, 1.65vh, 1.25rem);
+    line-height: 1.4;
+  }
+
+  .ctas > * {
+    min-height: 48px;
+    padding-block: 0.6rem;
+  }
+
+  .credentialBody {
+    gap: 0.7rem;
+  }
+
+  .credentialValue {
+    font-size: 1.25rem;
+  }
+
+  .stat {
+    padding-block: 0.6rem 0.7rem;
+  }
+
+  .statValue {
+    font-size: clamp(1.5rem, 4.4vh, 2.25rem);
+  }
+}
+
+/* The event wordmark sits in the lockup above the headline, per the copy deck. */
+.wordmark {
+  font-size: clamp(0.95rem, 2.4vw, 1.375rem);
+  letter-spacing: 0.06em;
+  color: var(--fg);
+}

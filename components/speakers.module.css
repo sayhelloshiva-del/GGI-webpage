@@ -1,0 +1,217 @@
+/* Programme rail ----------------------------------------------------------- */
+
+.rail {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  padding-bottom: 0.9rem;
+  margin-bottom: clamp(1.25rem, 3vw, 2rem);
+  border-bottom: 1px solid var(--rule);
+}
+
+/* Grid --------------------------------------------------------------------- */
+
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.25rem, 3vw, 2.25rem);
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.card {
+  display: grid;
+  /* portrait / category / note / name field. The note row takes the slack so
+     every name field in the row sits on the same line, the way a row of printed
+     credentials would. */
+  grid-template-rows: auto auto 1fr auto;
+  gap: 0.35rem;
+}
+
+/* Portrait ----------------------------------------------------------------- */
+
+.portrait {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  margin-bottom: 0.9rem;
+  border: 1px solid var(--rule);
+  /* The empty-slot field the figure stands in. */
+  background-color: #0d0d0d;
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--rule) 0 1px,
+    transparent 1px 13px
+  );
+}
+
+/*
+ * contain + bottom: the source files are cut-outs at different crops and head
+ * sizes. Standing every figure on the bottom edge at its own proportion reads
+ * as a deliberate set; cover would crop each one differently.
+ */
+.portraitImage {
+  object-fit: contain;
+  object-position: bottom center;
+  filter: grayscale(1) contrast(1.08) brightness(0.95);
+  transition:
+    filter 0.55s var(--ease),
+    transform 0.7s var(--ease);
+}
+
+/* Duotone: orange hue laid over the greyscale figure. */
+.tint {
+  position: absolute;
+  inset: 0;
+  background: var(--orange-gradient);
+  mix-blend-mode: color;
+  opacity: 0.5;
+  pointer-events: none;
+  transition: opacity 0.55s var(--ease);
+}
+
+/* Sinks the cut-out's hard lower edge into the card. */
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(8, 8, 8, 0.55) 0%,
+    rgba(8, 8, 8, 0) 34%,
+    rgba(8, 8, 8, 0.72) 82%,
+    var(--ink) 100%
+  );
+  pointer-events: none;
+}
+
+.slotNo,
+.status {
+  position: absolute;
+  top: 0.7rem;
+  z-index: 2;
+  font-size: 0.625rem;
+  letter-spacing: 0.22em;
+}
+
+.slotNo {
+  left: 0.7rem;
+  color: var(--fg);
+}
+
+.status {
+  right: 0.7rem;
+  padding: 0.2rem 0.45rem;
+  color: var(--signal);
+  border: 1px solid rgba(255, 133, 0, 0.45);
+  background: rgba(8, 8, 8, 0.6);
+}
+
+/* Card text ---------------------------------------------------------------- */
+
+.category {
+  font-size: clamp(1.25rem, 3.4vw, 1.75rem);
+  line-height: 1;
+}
+
+.note {
+  color: var(--dim);
+}
+
+/* The blank name field on a badge that has not been issued yet. */
+.nameField {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--rule);
+}
+
+.nameRule {
+  flex: 1;
+  height: 1px;
+  min-width: 0.75rem;
+  background-image: linear-gradient(to right, var(--rule-strong) 0 3px, transparent 3px 7px);
+  background-size: 7px 1px;
+}
+
+.nameValue {
+  color: rgba(244, 241, 234, 0.5);
+}
+
+/* Two cards to a row on phones leaves the field too narrow for one line — put
+   the value under the rule instead of letting it wrap mid-phrase. */
+@media (max-width: 700px) {
+  .nameField {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.3rem 0.5rem;
+  }
+
+  .nameValue {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Hover: the figure comes up to full colour behind an orange top wipe. ------ */
+
+@media (hover: hover) and (pointer: fine) {
+  .portrait::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    z-index: 2;
+    background: var(--orange-gradient);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s var(--ease);
+  }
+
+  .card:hover .portrait::after,
+  .card:focus-within .portrait::after {
+    transform: scaleX(1);
+  }
+
+  .card:hover .portraitImage,
+  .card:focus-within .portraitImage {
+    filter: grayscale(0) contrast(1.02) brightness(1);
+    transform: scale(1.03);
+  }
+
+  .card:hover .tint,
+  .card:focus-within .tint {
+    opacity: 0.12;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portraitImage,
+  .tint,
+  .portrait::after {
+    transition: none;
+  }
+
+  .card:hover .portraitImage,
+  .card:focus-within .portraitImage {
+    transform: none;
+  }
+}
+
+/* Footnote ----------------------------------------------------------------- */
+
+.footnote {
+  margin-top: clamp(1.5rem, 4vw, 2.5rem);
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  max-width: 62ch;
+}

@@ -1,0 +1,232 @@
+.header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 100;
+  color: var(--paper);
+}
+
+/*
+ * The glass lives on a pseudo-element covering just the bar, NOT on .header
+ * itself. backdrop-filter makes an element the containing block for its
+ * position:fixed descendants (the same way transform does) — with it on
+ * .header, the mobile menu panel below resolved its inset against the 64px
+ * bar instead of the viewport and collapsed to a sliver.
+ */
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: -1;
+  height: var(--nav-h);
+  background: rgba(8, 8, 8, 0.66);
+  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  --glass: saturate(150%) blur(18px);
+  -webkit-backdrop-filter: var(--glass);
+  backdrop-filter: var(--glass);
+  transition:
+    background-color 0.35s var(--ease),
+    border-color 0.35s var(--ease);
+}
+
+.isScrolled::before {
+  background: rgba(8, 8, 8, 0.92);
+  border-bottom-color: rgba(244, 241, 234, 0.16);
+  --glass: saturate(160%) blur(24px);
+}
+
+/* No backdrop-filter (older Safari/Firefox, or the filter disabled): fall back
+   to a near-solid bar rather than a washed-out translucent one. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .header::before {
+    background: rgba(8, 8, 8, 0.9);
+  }
+
+  .isScrolled::before {
+    background: rgba(8, 8, 8, 0.97);
+  }
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  padding: 0.9rem 1.25rem;
+  background: var(--signal);
+  color: var(--ink);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.skip:focus {
+  left: 0;
+  z-index: 2;
+}
+
+.bar {
+  position: relative;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 44px;
+}
+
+.brandDivider {
+  width: 1px;
+  height: 22px;
+  background: rgba(244, 241, 234, 0.28);
+}
+
+.brandMeta {
+  color: rgba(244, 241, 234, 0.62);
+  letter-spacing: 0.22em;
+}
+
+@media (max-width: 419px) {
+  .brandDivider,
+  .brandMeta {
+    display: none;
+  }
+}
+
+.links {
+  display: none;
+  gap: clamp(1.5rem, 3vw, 2.75rem);
+}
+
+.link {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(244, 241, 234, 0.72);
+  padding: 0.5rem 0;
+  position: relative;
+  transition: color 0.25s var(--ease);
+}
+
+.link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s var(--ease);
+}
+
+.link:hover {
+  color: var(--paper);
+}
+
+.link:hover::after {
+  transform: scaleX(1);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.apply {
+  display: none;
+  min-height: 44px;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.75rem;
+}
+
+.menuButton {
+  min-height: 44px;
+  min-width: 64px;
+  padding: 0.5rem 0.25rem;
+  background: none;
+  border: 0;
+  color: var(--paper);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-align: right;
+}
+
+@media (min-width: 900px) {
+  .links {
+    display: flex;
+  }
+
+  .apply {
+    display: inline-flex;
+  }
+
+  .menuButton {
+    display: none;
+  }
+}
+
+/* Mobile panel ------------------------------------------------------------- */
+
+.panel {
+  position: fixed;
+  inset: var(--nav-h) 0 0 0;
+  z-index: 1;
+  background: var(--ink);
+  border-top: 1px solid rgba(244, 241, 234, 0.14);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(1.5rem, 6vw, 2.5rem) var(--gutter) calc(1.5rem + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate3d(0, -8px, 0);
+  transition:
+    opacity 0.28s var(--ease),
+    transform 0.28s var(--ease),
+    visibility 0.28s;
+}
+
+.panelOpen {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+}
+
+.panelLinks {
+  display: flex;
+  flex-direction: column;
+}
+
+.panelLink {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.12);
+  min-height: 56px;
+}
+
+.panelLink:first-child {
+  border-top: 1px solid rgba(244, 241, 234, 0.12);
+}
+
+.panelFoot {
+  display: grid;
+  gap: 1.25rem;
+  padding-top: 2rem;
+}

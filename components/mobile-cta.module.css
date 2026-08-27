@@ -1,0 +1,50 @@
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem var(--gutter) calc(0.75rem + env(safe-area-inset-bottom));
+  background: rgba(8, 8, 8, 0.9);
+  --glass: saturate(140%) blur(12px);
+  -webkit-backdrop-filter: var(--glass);
+  backdrop-filter: var(--glass);
+  border-top: 1px solid rgba(244, 241, 234, 0.16);
+  color: var(--paper);
+  transform: translate3d(0, 110%, 0);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.35s var(--ease), opacity 0.35s var(--ease);
+}
+
+.barShown {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.info {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.button {
+  min-height: 48px;
+  padding: 0.75rem 1.5rem;
+}
+
+@media (min-width: 900px) {
+  .bar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    transition: none;
+  }
+}

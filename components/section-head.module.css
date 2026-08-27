@@ -1,0 +1,20 @@
+.index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  padding-top: 0.4rem;
+}
+
+@media (min-width: 900px) {
+  .index {
+    flex-direction: column;
+    gap: 0.5rem;
+    border-top: 1px solid var(--rule);
+    padding-top: 0.9rem;
+  }
+}
+
+.title {
+  display: grid;
+  gap: 1.25rem;
+}
