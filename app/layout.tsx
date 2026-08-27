@@ -21,7 +21,7 @@ const body = Inter({
   display: 'swap',
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://summit.example.org';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://summit.example.org';
 const description =
   '500 Indian students and graduates. 15+ countries. Six global questions. Two days in London. One declaration written by the room.';
 
