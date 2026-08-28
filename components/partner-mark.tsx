@@ -1,12 +1,7 @@
 import type { MarkId } from '@/data/partners';
 
-/**
- * Placeholder partner symbols — geometric, monochrome, drawn on one 32×32 grid
- * with a single stroke weight so six unrelated marks read as one set at the
- * small size a sponsor strip runs at. They inherit currentColor.
- *
- * These are invented shapes, not any real organisation's mark.
- */
+// Invented marks, all on one 32×32 grid at one stroke weight so they read as a
+// set at sponsor-strip size.
 const MARKS: Record<MarkId, React.ReactNode> = {
   // Globe with a meridian through it.
   meridian: (

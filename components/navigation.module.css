@@ -5,13 +5,9 @@
   color: var(--paper);
 }
 
-/*
- * The glass lives on a pseudo-element covering just the bar, NOT on .header
- * itself. backdrop-filter makes an element the containing block for its
- * position:fixed descendants (the same way transform does) — with it on
- * .header, the mobile menu panel below resolved its inset against the 64px
- * bar instead of the viewport and collapsed to a sliver.
- */
+/* Glass goes on a pseudo-element, not on .header: backdrop-filter makes an
+   element the containing block for its position:fixed children, which
+   collapses the mobile menu panel below. */
 .header::before {
   content: '';
   position: absolute;

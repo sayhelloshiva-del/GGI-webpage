@@ -8,21 +8,12 @@ import { Logo } from '@/components/logo';
 
 import styles from './preloader.module.css';
 
-/** Held open at least this long so the panel never flashes on a warm cache. */
-const MIN_MS = 700;
-/** Never held longer than this, whatever the network is doing. */
-const MAX_MS = 2400;
-/** Matches the exit transition in the stylesheet. */
-const EXIT_MS = 640;
+const MIN_MS = 700; // floor, so it can't flash on a warm cache
+const MAX_MS = 2400; // ceiling, whatever the network is doing
+const EXIT_MS = 640; // matches the exit transition in the stylesheet
 
-/**
- * First-load panel: the summit issuing you a credential.
- *
- * Progress tracks the real document load — it is not a fixed timer — with a
- * floor so it cannot flash and a ceiling so a slow asset can never hold the
- * page hostage. If JavaScript never runs, a CSS failsafe animation clears the
- * panel on its own (see .panel in the stylesheet).
- */
+// Progress follows the real document load, not a timer. If JS never runs at all
+// there's a CSS failsafe in the stylesheet that clears the panel.
 export function Preloader() {
   const [progress, setProgress] = useState(0);
   const [state, setState] = useState<'busy' | 'leaving' | 'gone'>('busy');
@@ -59,11 +50,8 @@ export function Preloader() {
       exitTimer = window.setTimeout(() => setState('gone'), reduced ? 0 : EXIT_MS);
     };
 
-    /*
-     * The ceiling runs on a timer, not on the rAF loop: rAF is suspended
-     * entirely in a background tab, so a cap checked only inside tick() would
-     * never fire for someone who opened the page in a new tab and looked away.
-     */
+    // On a timer rather than inside tick(): rAF is suspended in background
+    // tabs, so a cap checked in the loop would never fire there.
     const ceilingTimer = window.setTimeout(finish, MAX_MS);
 
     const tick = () => {

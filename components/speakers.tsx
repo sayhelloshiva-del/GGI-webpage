@@ -6,14 +6,8 @@ import { Headline } from '@/components/headline';
 
 import styles from './speakers.module.css';
 
-/**
- * Placeholder people section.
- *
- * No names are invented and no individual is presented as booked. Each card is
- * an unfilled slot on the programme: the portrait is an indicative figure,
- * knocked back to a duotone and marked UNFILLED, and the name field is left
- * visibly blank. Fill a slot by adding `name` and swapping `image`.
- */
+// Unfilled programme slots, not people. Portraits are indicative and marked
+// UNFILLED; fill a slot by adding a name and swapping the image.
 const SLOTS = [
   {
     slot: '01',

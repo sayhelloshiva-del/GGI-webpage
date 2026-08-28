@@ -4,14 +4,8 @@ import { Reveal } from '@/components/reveal';
 
 import styles from './headline.module.css';
 
-/**
- * Display headline with a masked line rise.
- *
- * Each line sits in its own overflow box and travels up from behind it on a
- * stagger, so the headline assembles line by line rather than fading in as a
- * block. Pass one array entry per line — the same breaks the headlines were
- * already authored with.
- */
+/** Display headline whose lines rise out of a mask on a stagger. One array
+ *  entry per line. */
 export function Headline({
   lines,
   as = 'h2',

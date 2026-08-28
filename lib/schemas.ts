@@ -3,12 +3,7 @@ import { z } from 'zod';
 import { TRACK_IDS } from '@/data/tracks';
 import { MATCHER_QUESTIONS, optionIdsFor } from '@/data/matcher';
 
-/**
- * What the browser is allowed to send us.
- *
- * Answers are validated against the known option ids rather than accepted as
- * free text, so nothing user-supplied ever reaches the model prompt.
- */
+// Answers are matched against known option ids, so no free text reaches the prompt.
 export const TrackMatchRequestSchema = z.object({
   answers: z
     .array(z.string())

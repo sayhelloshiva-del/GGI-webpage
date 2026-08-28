@@ -19,12 +19,8 @@
     transform 0.64s cubic-bezier(0.76, 0, 0.24, 1),
     opacity 0.4s var(--ease) 0.24s;
 
-  /*
-   * Failsafe. If the bundle never executes, nothing would remove this panel and
-   * the page would be unreachable behind it — so CSS clears it on its own. The
-   * component cancels this the moment it takes over (.leaving sets animation:
-   * none), so the two can never fight.
-   */
+  /* If the bundle never executes, nothing would remove this panel. .leaving
+     sets animation: none, so the component cancels it once it takes over. */
   animation: preloaderFailsafe 0.01s linear 4s forwards;
 }
 

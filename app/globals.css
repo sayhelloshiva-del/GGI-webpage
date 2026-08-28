@@ -69,15 +69,8 @@
   --panel: #101010;
 }
 
-/*
- * Grain on dark sections, composited normally.
- *
- * This used to use mix-blend-mode: soft-light, which is very close to inert
- * against #080808 — overlay resolves to 2·b·s for a backdrop under 0.5, so at
- * b = 8/255 the whole layer could only ever move a pixel by ~0.4/255. The
- * texture was in the CSS and invisible on screen. Normal blend with a faint
- * grey noise actually reads.
- */
+/* Normal blend, not soft-light: those modes are near-inert against #080808
+   (overlay is 2·b·s under 0.5, so ~0.4/255 of movement at b = 8/255). */
 .tone-ink::before {
   content: '';
   position: absolute;
@@ -204,8 +197,7 @@ body::after {
   position: relative;
 }
 
-/* Each dark plate catches a little light at its top edge, so consecutive
-   dark sections read as separate sheets instead of one endless field. */
+/* Top-edge lift, so consecutive dark sections read as separate plates. */
 .section.tone-ink,
 footer.tone-ink {
   background-color: var(--ink);

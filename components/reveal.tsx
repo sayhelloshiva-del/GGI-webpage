@@ -24,11 +24,8 @@ type RevealProps = {
   id?: string;
 };
 
-/**
- * Scroll reveal. One IntersectionObserver per element, disconnected the moment
- * it fires — nothing observes anything after it has been seen. The animation
- * itself is CSS, and `prefers-reduced-motion` neutralises it in globals.css.
- */
+/** Scroll reveal. The observer disconnects on first hit; the animation itself
+ *  is CSS, neutralised by prefers-reduced-motion in globals.css. */
 export function Reveal({
   children,
   as: Tag = 'div',

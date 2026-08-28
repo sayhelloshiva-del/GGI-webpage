@@ -29,9 +29,7 @@
 
 .card {
   display: grid;
-  /* portrait / category / note / name field. The note row takes the slack so
-     every name field in the row sits on the same line, the way a row of printed
-     credentials would. */
+  /* The note row takes the slack so every name field lines up across the row. */
   grid-template-rows: auto auto 1fr auto;
   gap: 0.35rem;
 }
@@ -53,11 +51,8 @@
   );
 }
 
-/*
- * contain + bottom: the source files are cut-outs at different crops and head
- * sizes. Standing every figure on the bottom edge at its own proportion reads
- * as a deliberate set; cover would crop each one differently.
- */
+/* contain + bottom: the cut-outs come at different crops, so standing them all
+   on the bottom edge keeps them a set. cover would crop each differently. */
 .portraitImage {
   object-fit: contain;
   object-position: bottom center;
