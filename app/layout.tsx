@@ -21,7 +21,14 @@ const body = Inter({
   display: 'swap',
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://summit.example.org';
+// metadataBase resolves the Open Graph image URL, so this has to be right in
+// production. Vercel sets VERCEL_PROJECT_PRODUCTION_URL itself, so the card works
+// on a fresh deploy with no env config.
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : 'http://localhost:3000');
 const description =
   '500 Indian students and graduates. 15+ countries. Six global questions. Two days in London. One declaration written by the room.';
 
@@ -44,6 +51,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: 'website',
+    url: siteUrl,
     title: `${SUMMIT.name} — ${SUMMIT.city}, ${SUMMIT.dates}`,
     description,
     siteName: SUMMIT.name,
