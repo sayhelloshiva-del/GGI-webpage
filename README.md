@@ -160,7 +160,7 @@ builds, renders and converts without any of them.
 | Variable | Default | Purpose |
 |---|---|---|
 | `GEMINI_API_KEY` | *(unset)* | Enables the AI half of the Track Matcher. Unset ⇒ deterministic scoring, with the offline state shown to the user. |
-| `GEMINI_MODEL` | `gemini-3.5-flash-lite` | Model id. Free-tier eligible. |
+| `GEMINI_MODEL` | `gemini-3.5-flash-lite` | Model id. Free-tier eligible — see below. |
 | `TRACK_MATCH_TIMEOUT_MS` | `9000` | Server-side deadline for the model call. |
 | `NEXT_PUBLIC_SITE_URL` | `https://summit.example.org` | Used for `metadataBase` / Open Graph. |
 
@@ -215,6 +215,24 @@ The prompt hands Gemini the six tracks, the delegate's three answers, and the
 deterministic ranking, and asks it to confirm the top track — or override it with
 a reason — and write one or two sentences addressed to the delegate. Grounding the
 call in the local ranking is what keeps AI and non-AI results consistent.
+
+### Why this model
+
+Measured against the same three-question call on a free-tier key:
+
+| Model | Result |
+|---|---|
+| `gemini-3.5-flash-lite` | ~4s — **chosen** |
+| `gemini-2.5-flash-lite` | ~4.2s |
+| `gemini-2.5-flash` | ~4.3s |
+| `gemini-3.6-flash` | ~5.6s |
+| `gemini-3.5-flash` | ~12.5s — would miss the 9s deadline outright |
+| `gemini-3.7-flash` | capped at 20 free requests, then 429 |
+
+The task is a six-way classification with one sentence back, so the Lite tier is
+the right size for it. The free tier is rate-limited, and a spent quota returns
+429 — which is why the client retries nothing and hands straight to local
+scoring rather than burning the same quota twice.
 
 The request uses structured outputs (`output_config.format` with
 `zodOutputFormat`) at `effort: 'low'`, since this is a small classification.
@@ -297,6 +315,7 @@ Every failure resolves to a **result**, never a blank screen or a console error:
 | Model exceeded the deadline | `AI_TIMEOUT` | **THE AI TOOK TOO LONG.** — "We've matched you using our local track scoring instead." |
 | Malformed or off-schema output | `AI_INVALID` | "The AI sent back something we couldn't use." |
 | Model declined | `AI_REFUSED` | "The AI declined to answer." |
+| Free-tier quota spent (429) | `AI_ERROR` | "The AI is having a moment." |
 | Anything else | `AI_ERROR` | "The AI is having a moment." |
 | Local scoring itself fails | — | `ERROR` state with a retry and a link to the six tracks |
 
@@ -401,7 +420,7 @@ npm run build && npm start
 
 ## 13. Development approach
 
-Built by **Shiwa Kumar** as a recruitment task submission.
+Built by **Shiwa Kumar** 
 
 I designed and developed this landing page end-to-end — from the initial concept
 and visual direction through to a production deployment on Vercel with a working
@@ -428,8 +447,26 @@ AI feature. The key decisions I made:
 
 ### AI tools used as development assistants
 
-I used **Claude Code** and **Google Antigravity (Gemini)** as coding assistants
-throughout the project — for scaffolding boilerplate, generating CSS patterns,
-debugging build issues, and accelerating repetitive tasks. All design decisions,
-architectural choices, and creative direction were mine. The AI tools sped up
-implementation but did not drive the product.
+I used **Claude Code** and **Google Antigravity (Gemini)** 
+ as development assistants.
+
+**Claude Code (Claude Opus 5)** did the bulk of the implementation: component and
+CSS authoring, the API route, the deterministic scoring engine, the Gemini
+integration, and a browser-based verification pass. That pass is where most of
+its value was — layouts were measured at 375/390/430/1440px for overflow and
+touch-target size, contrast ratios were computed rather than eyeballed, and the
+API was exercised against every failure branch. Real bugs it caught that way:
+
+- A `backdrop-filter` on the sticky header made it the containing block for its
+  `position: fixed` children, collapsing the mobile menu panel to a 49px sliver.
+- Grain layers set to `mix-blend-mode: soft-light` were mathematically inert
+  against `#080808` — the texture was in the CSS and invisible on screen.
+- Ink on the brand gradient's burnt end measured 4.26:1, below AA, across the
+  whole application section.
+- The Gemini SDK's type declarations name `RequestTimeoutError`, but the runtime
+  throws `APIConnectionTimeoutError`, so timeouts were being misclassified.
+
+**Google Antigravity (Gemini)** — [note what this was used for].
+
+Everything was reviewed and directed decision by decision; nothing was accepted
+without being run.
