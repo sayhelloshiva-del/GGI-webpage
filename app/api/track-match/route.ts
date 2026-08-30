@@ -35,9 +35,10 @@ export async function POST(request: Request): Promise<NextResponse> {
     return respond({ ...(await matchTrackWithAi(answers)), source: 'ai' });
   } catch (error) {
     const reason = error instanceof AiFallbackError ? error.reason : 'AI_ERROR';
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn(`[track-match] falling back to local scoring (${reason})`);
-    }
+    const detail = error instanceof AiFallbackError ? error.detail : undefined;
+    console.warn(
+      `[track-match] falling back to local scoring (${reason})${detail ? ` — ${detail}` : ''}`,
+    );
     return respond({ ...matchLocally(answers), source: 'local', fallbackReason: reason });
   }
 }

@@ -23,10 +23,24 @@ export class AiFallbackError extends Error {
     readonly reason: FallbackReason,
     message: string,
     readonly cause?: unknown,
+    /** Provider status and message, for logs. Never contains the API key. */
+    readonly detail?: string,
   ) {
     super(message);
     this.name = 'AiFallbackError';
   }
+}
+
+/** The provider's own status and message, trimmed and stripped of any key. */
+function describe(error: unknown): string {
+  const name = error instanceof Error ? error.name : typeof error;
+  const status = (error as { status?: unknown })?.status;
+  const body = String((error as { body?: unknown })?.body ?? '');
+  const message = String((error as { message?: unknown })?.message ?? '');
+  const text = (body || message)
+    .replace(/AIza[\w-]{10,}/g, '[redacted]')
+    .replace(/\s+/g, ' ');
+  return `${name}${status ? ` ${status}` : ''}: ${text.slice(0, 300)}`;
 }
 
 function apiKey(): string | undefined {
@@ -131,7 +145,12 @@ export async function matchTrackWithAi(answers: readonly string[]): Promise<Trac
 
     text = 'output_text' in interaction ? interaction.output_text : undefined;
   } catch (error) {
-    throw new AiFallbackError(classify(error), 'The model request failed.', error);
+    throw new AiFallbackError(
+      classify(error),
+      'The model request failed.',
+      error,
+      describe(error),
+    );
   }
 
   // Empty output means the model produced nothing usable — a safety stop, or a
