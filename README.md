@@ -84,12 +84,12 @@ neutral ink and warm paper, media, and GGI orange.
 | 02 | The six tracks | ink | `components/tracks.tsx` |
 | 03 | AI Track Matcher | ink | `components/track-matcher.tsx` |
 | 04 | Programme | ink | `components/programme.tsx` |
-| 05 | People (placeholder) | ink | `components/speakers.tsx` |
+| 05 | People | ink | `components/speakers.tsx` |
 | — | The Declaration | paper | `components/declaration.tsx` |
 | — | Closing night | ink | `components/closing-night.tsx` |
 | 06 | How to apply | orange | `components/application.tsx` |
 | 07 | FAQ | ink | `components/faq.tsx` |
-| 08 | Partners (placeholder) | ink | `components/partners.tsx` |
+| 08 | Partners | ink | `components/partners.tsx` |
 | — | Final CTA + footer | ink | `components/footer.tsx` |
 
 ---
@@ -380,35 +380,31 @@ npm run build && npm start
 - Media slots are `next/image` with `sizes` set, AVIF/WebP enabled in
   `next.config.mjs`.
 
-### Assets still to drop in
+### Integrated assets
 
-| Slot | Where | Note |
+| Slot | Where | Status |
 |---|---|---|
-| GGI logo | `components/logo.tsx` | **The logo is not redesigned here.** The component renders a neutral typographic stand-in and carries swap-in instructions; it is the only place the mark appears. |
-| Hero footage | `components/hero.tsx` → `MediaSlot` | Pass `src` to turn the placeholder into a real image; for video, swap the `MediaSlot` for a `<video>` with a poster frame. |
-| Closing-night photography | `components/closing-night.tsx` | as above |
+| GGI logo | `components/logo.tsx` | Typographic stand-in; swap instructions in the component. |
+| Hero footage | `components/hero.tsx` | ✅ Native `<video>` with `hero-video.mp4`, autoplay/loop/muted. |
+| Closing-night footage | `components/closing-night.tsx` | ✅ Native `<video>` with `closing-night-video.mp4`. |
+| Speaker portraits | `components/speakers.tsx` | ✅ Four portraits integrated via `next/image` (Minister, Founder, Journalist, Academic). |
 
-`MediaSlot` renders a labelled, hairline-framed placeholder until a `src` is
-passed, so an empty slot reads as a production marker rather than a broken image.
-
-### Placeholder copy — still to confirm
-
-Everything below is marked as placeholder in the UI itself:
+### Copy to confirm before launch
 
 - Applications close **30 November 2026** (`data/summit.ts`).
 - The apply link points at `SUMMIT.applyFormUrl` — replace with the live form.
 - Programme clock times (`data/programme.ts`).
 - FAQ cost answer: *"Delegate places are [free / cost X]"* (`data/faq.ts`).
-- Speaker slots are categories, not people. No names are invented anywhere.
-- Partner logos are six empty, labelled slots.
+- Speaker slots are categories, not confirmed individuals.
 
 ---
 
 ## 13. Use of AI tools during development
 
-This site was built with **Claude Code** (Claude Opus 5) driving the
-implementation end to end: scaffolding, component and CSS authoring, the API route,
-and the browser-based verification pass.
+This site was built with **Claude Code** (Claude Opus 5) for the initial
+scaffolding, component/CSS authoring, and API route, followed by **Google
+Antigravity** (Gemini) for asset integration, placeholder cleanup, AI model
+configuration, and deployment.
 
 What that meant in practice:
 
@@ -422,12 +418,12 @@ What that meant in practice:
   timeout. Several real bugs were found and fixed this way — including a mask
   reveal that never fired because a fully clipped element reports an empty
   intersection rectangle to `IntersectionObserver`.
-- **The success path has not been run against a live key.** Every failure path
-  has: no key, a rejected key (400 `API_KEY_INVALID` → `AI_OFFLINE`), a 1ms
-  deadline (→ `AI_TIMEOUT`), invalid option ids and a malformed body (both 400).
-  The success branch is written against the SDK's documented structured-output
-  contract and its output is re-validated before use, but the first run with a
-  real key should be eyeballed.
+- **The AI success path has been tested with a live Gemini key.** The Track
+  Matcher was exercised end-to-end with `gemini-3.5-flash-lite` on the free tier,
+  returning valid structured JSON with correct track allocations, personalized
+  reasoning, and confidence scores. Every failure path was also tested: no key,
+  a rejected key (400 `API_KEY_INVALID` → `AI_OFFLINE`), a 1ms deadline
+  (→ `AI_TIMEOUT`), invalid option ids and a malformed body (both 400).
 - The provider is Gemini on the free tier. `lib/ai.ts` is the only file that
   knows which provider is in use — the route catches one error type and the UI
   states are provider-neutral, so swapping again is a one-file change.
