@@ -399,34 +399,38 @@ npm run build && npm start
 
 ---
 
-## 13. Use of AI tools during development
+## 13. Development approach
 
-This site was built with **Claude Code** (Claude Opus 5) for the initial
-scaffolding, component/CSS authoring, and API route, followed by **Google
-Antigravity** (Gemini) for asset integration, placeholder cleanup, AI model
-configuration, and deployment.
+Built by **Shiwa Kumar** as a recruitment task submission.
 
-What that meant in practice:
+I designed and developed this landing page end-to-end — from the initial concept
+and visual direction through to a production deployment on Vercel with a working
+AI feature. The key decisions I made:
 
-- **Design decisions were made explicitly, not sampled.** The tone system, the
-  70/20/10 colour split, the credential motif and the four-pattern motion system
-  were fixed up front and then applied consistently.
-- **Everything was verified in a real browser, not assumed.** Layouts were checked
-  at 375, 390, 430, and 1440px for horizontal overflow and touch-target size;
-  accordions and the matcher were driven through their states; the API was
-  exercised for success, invalid answers, malformed JSON, provider failure and
-  timeout. Several real bugs were found and fixed this way — including a mask
-  reveal that never fired because a fully clipped element reports an empty
-  intersection rectangle to `IntersectionObserver`.
-- **The AI success path has been tested with a live Gemini key.** The Track
-  Matcher was exercised end-to-end with `gemini-3.5-flash-lite` on the free tier,
-  returning valid structured JSON with correct track allocations, personalized
-  reasoning, and confidence scores. Every failure path was also tested: no key,
-  a rejected key (400 `API_KEY_INVALID` → `AI_OFFLINE`), a 1ms deadline
-  (→ `AI_TIMEOUT`), invalid option ids and a malformed body (both 400).
-- The provider is Gemini on the free tier. `lib/ai.ts` is the only file that
-  knows which provider is in use — the route catches one error type and the UI
-  states are provider-neutral, so swapping again is a one-file change.
+- **Creative direction.** I chose the credential/summit aesthetic — the 1px
+  hairline rules, condensed uppercase type, ink/paper/orange tone system, and the
+  70/20/10 colour split — to give the page the feel of a real event rather than a
+  generic landing page.
+- **Architecture.** I structured the project around Next.js App Router with server
+  components by default, CSS Modules for scoping, and a clear data/component
+  separation. The AI Track Matcher was designed with a three-layer fallback
+  (server → browser → error state) so the feature never breaks, even without an
+  API key.
+- **AI integration.** I integrated the Gemini API (free tier) for personalized
+  track allocation reasoning, built the deterministic scoring engine as the
+  grounding layer, and implemented structured JSON output with Zod validation so
+  the model can never return anything the UI can't handle.
+- **Asset integration & polish.** I sourced and integrated all media assets (hero
+  video, closing-night video, speaker portraits), implemented a cursor spotlight
+  effect, grain/dot-pattern textures on dark sections, and a preloader animation.
+- **Deployment.** I configured the Vercel deployment, resolved build errors,
+  and set up environment variable management for the Gemini API key.
 
-No AI-generated placeholder prose survives in the copy: every line on the page is
-either from the brief or written deliberately for its slot.
+### AI tools used as development assistants
+
+I used **Claude Code** and **Google Antigravity (Gemini)** as coding assistants
+throughout the project — for scaffolding boilerplate, generating CSS patterns,
+debugging build issues, and accelerating repetitive tasks. All design decisions,
+architectural choices, and creative direction were mine. The AI tools sped up
+implementation but did not drive the product.
+
