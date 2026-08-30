@@ -17,7 +17,7 @@ npm run dev
 
 Open <http://localhost:3000>. **No environment variables are needed** — the site
 builds and every feature works without an API key. To enable the AI half of the
-Track Matcher, copy `.env.example` to `.env.local` and set `ANTHROPIC_API_KEY`.
+Track Matcher, copy `.env.example` to `.env.local` and set `GEMINI_API_KEY` (free key from https://aistudio.google.com/apikey).
 
 ## What the AI feature does
 
@@ -26,7 +26,7 @@ three questions.
 
 Answers are scored locally first, by a deterministic weighted model
 (`lib/track-scoring.ts`) that always produces the same allocation for the same
-answers. That ranking is then handed to Claude, which confirms the top track — or
+answers. That ranking is then handed to Gemini, which confirms the top track — or
 overrides it with a reason — and writes a sentence or two addressed to the
 delegate. Grounding the model in the local ranking is what keeps the AI and
 non-AI results consistent with each other.
@@ -103,7 +103,7 @@ neutral ink and warm paper, media, and GGI orange.
 | Styling | Plain CSS — design tokens in `app/globals.css`, CSS Modules per component | No utility-class framework, no runtime CSS-in-JS, no extra bytes |
 | Fonts | `next/font/google` — Barlow Condensed (700/800/900), Inter (400/500/600) | Self-hosted at build time, no layout shift, no third-party request |
 | Validation | Zod | Same schemas guard the request, the model output, and the API response |
-| AI | `@anthropic-ai/sdk` (Claude) | Optional — see §5 |
+| AI | `@google/genai` (Gemini, free tier) | Optional — see §5 |
 | Motion | CSS transitions driven by `IntersectionObserver` | No animation library |
 
 There is no icon library, no UI kit and no animation runtime. Every mark on the
@@ -121,7 +121,7 @@ app/
 components/               one component + one CSS module each
 data/                     tracks, programme, faq, matcher questions, event facts
 lib/
-  ai.ts                   Claude call, error classification
+  ai.ts                   Gemini call, error classification
   schemas.ts              Zod schemas (request, model output, API response)
   track-scoring.ts        deterministic matcher — runs on server and client
 ```
@@ -159,8 +159,8 @@ builds, renders and converts without any of them.
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | *(unset)* | Enables the AI half of the Track Matcher. Unset ⇒ deterministic scoring, with the offline state shown to the user. |
-| `ANTHROPIC_MODEL` | `claude-opus-5` | Model id. |
+| `GEMINI_API_KEY` | *(unset)* | Enables the AI half of the Track Matcher. Unset ⇒ deterministic scoring, with the offline state shown to the user. |
+| `GEMINI_MODEL` | `gemini-3.7-flash` | Model id. Free-tier eligible. |
 | `TRACK_MATCH_TIMEOUT_MS` | `9000` | Server-side deadline for the model call. |
 | `NEXT_PUBLIC_SITE_URL` | `https://summit.example.org` | Used for `metadataBase` / Open Graph. |
 
@@ -181,7 +181,7 @@ answers ──POST /api/track-match──▶ validate request (Zod)
                                    │
                                    ├─ no API key ────────────▶ (skipped)
                                    │                            │
-                                   ├─ matchTrackWithAi() ─────▶ Claude
+                                   ├─ matchTrackWithAi() ─────▶ Gemini
                                    │     timeout 9s              │
                                    │     ◀── JSON ────────────────┘
                                    │     re-validate (Zod)
@@ -211,7 +211,7 @@ the browser — the client can fall back locally even if the network never answe
 
 ### What the model is actually asked
 
-The prompt hands Claude the six tracks, the delegate's three answers, and the
+The prompt hands Gemini the six tracks, the delegate's three answers, and the
 deterministic ranking, and asks it to confirm the top track — or override it with
 a reason — and write one or two sentences addressed to the delegate. Grounding the
 call in the local ranking is what keeps AI and non-AI results consistent.
@@ -310,10 +310,10 @@ malformed request body or answers that are not valid option ids.
 npm run dev
 
 # 2. Provider failure (401 from the API)
-printf 'ANTHROPIC_API_KEY=sk-ant-not-a-real-key\n' > .env.local && npm run dev
+printf 'GEMINI_API_KEY=AIza-not-a-real-key\n' > .env.local && npm run dev
 
 # 3. Timeout — deadline of 1ms
-printf 'ANTHROPIC_API_KEY=sk-ant-not-a-real-key\nTRACK_MATCH_TIMEOUT_MS=1\n' > .env.local && npm run dev
+printf 'GEMINI_API_KEY=AIza-not-a-real-key\nTRACK_MATCH_TIMEOUT_MS=1\n' > .env.local && npm run dev
 ```
 
 Delete `.env.local` afterwards. All three were exercised during development, along
@@ -331,8 +331,8 @@ npm run build && npm start
 
 - The page is statically prerendered; `/api/track-match` is server-rendered on
   demand (`dynamic = 'force-dynamic'`, `Cache-Control: no-store`).
-- The route runs on the Node runtime because it uses the Anthropic SDK.
-- Set `ANTHROPIC_API_KEY` and `NEXT_PUBLIC_SITE_URL` in the host's environment
+- The route runs on the Node runtime because it uses the Google Gen AI SDK.
+- Set `GEMINI_API_KEY` in the host's environment
   settings. Without the key the deployment still works, in local-scoring mode.
 
 ---
@@ -422,16 +422,15 @@ What that meant in practice:
   timeout. Several real bugs were found and fixed this way — including a mask
   reveal that never fired because a fully clipped element reports an empty
   intersection rectangle to `IntersectionObserver`.
-- **The live AI path could not be verified end to end** — no Anthropic credentials
-  were available in the build environment. The request-building, error-mapping and
-  fallback branches were exercised against the real API with an invalid key
-  (401 → `AI_OFFLINE`) and a 1ms deadline (→ `AI_TIMEOUT`). The success branch is
-  written against the documented Messages API structured-output contract, and its
-  output is re-validated before use — but the first run with a real key should be
-  eyeballed.
-- The Claude API integration follows the current Messages API guidance for
-  `claude-opus-5` (structured outputs via `output_config.format`, `effort`,
-  no `budget_tokens`, no assistant prefill).
+- **The success path has not been run against a live key.** Every failure path
+  has: no key, a rejected key (400 `API_KEY_INVALID` → `AI_OFFLINE`), a 1ms
+  deadline (→ `AI_TIMEOUT`), invalid option ids and a malformed body (both 400).
+  The success branch is written against the SDK's documented structured-output
+  contract and its output is re-validated before use, but the first run with a
+  real key should be eyeballed.
+- The provider is Gemini on the free tier. `lib/ai.ts` is the only file that
+  knows which provider is in use — the route catches one error type and the UI
+  states are provider-neutral, so swapping again is a one-file change.
 
 No AI-generated placeholder prose survives in the copy: every line on the page is
 either from the brief or written deliberately for its slot.

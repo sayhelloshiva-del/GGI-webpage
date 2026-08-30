@@ -1,15 +1,21 @@
 import 'server-only';
 
-import Anthropic from '@anthropic-ai/sdk';
-import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
+import { GoogleGenAI } from '@google/genai';
+import { z } from 'zod';
 
 import { getOption, MATCHER_QUESTIONS } from '@/data/matcher';
 import { getTrack, TRACKS } from '@/data/tracks';
 import { rankTracks } from '@/lib/track-scoring';
 import { TrackMatchSchema, type FallbackReason, type TrackMatch } from '@/lib/schemas';
 
-const DEFAULT_MODEL = 'claude-opus-5';
+const DEFAULT_MODEL = 'gemini-3.7-flash';
 const DEFAULT_TIMEOUT_MS = 9_000;
+
+/**
+ * The model is asked for the track and its reasoning only. trackName is
+ * rebuilt from our own data afterwards, so it is not worth a round trip.
+ */
+const ModelOutputSchema = TrackMatchSchema.omit({ trackName: true });
 
 /** Any failure that should hand over to the deterministic scorer. */
 export class AiFallbackError extends Error {
@@ -23,8 +29,12 @@ export class AiFallbackError extends Error {
   }
 }
 
+function apiKey(): string | undefined {
+  return process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+}
+
 export function isAiConfigured(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY);
+  return Boolean(apiKey());
 }
 
 export function aiTimeoutMs(): number {
@@ -39,8 +49,8 @@ const SYSTEM_PROMPT = [
   'There are exactly six tracks:',
   ...TRACKS.map((track) => `${track.id} — ${track.fullName}: ${track.body}`),
   '',
-  'You are given one delegate\'s three answers and a deterministic ranking produced',
-  'by the summit\'s own scoring rules. Usually confirm the top-ranked track. Choose a',
+  "You are given one delegate's three answers and a deterministic ranking produced",
+  "by the summit's own scoring rules. Usually confirm the top-ranked track. Choose a",
   'different track only when the answers clearly justify it.',
   '',
   'Write the reason in the second person, as one or two plain sentences, addressed',
@@ -64,56 +74,83 @@ function buildUserMessage(answers: readonly string[]): string {
 }
 
 /**
- * Ask the model for a track match.
+ * Transport failures are told apart by name and HTTP status rather than by
+ * instanceof: the SDK throws BadRequestError, RequestTimeoutError and friends,
+ * and none of them are exported or extend the exported ApiError.
+ */
+function classify(error: unknown): FallbackReason {
+  // Matched on the pattern, not exact names: the type declarations list
+  // RequestTimeoutError/ConnectionError but the runtime throws
+  // APIConnectionTimeoutError/APIConnectionError. Timeout is tested first
+  // because the timeout class name contains "connection" too.
+  const name = error instanceof Error ? error.name : '';
+  if (/timeout|abort/i.test(name)) return 'AI_TIMEOUT';
+  if (/connection|network|fetch/i.test(name)) return 'AI_OFFLINE';
+
+  const status = Number((error as { status?: unknown })?.status);
+  const body = String((error as { body?: unknown })?.body ?? '');
+
+  // A rejected key comes back as 400 INVALID_ARGUMENT / API_KEY_INVALID, not
+  // 401, so a bare status check would report it as a generic failure.
+  if (status === 401 || status === 403) return 'AI_OFFLINE';
+  if (status === 400 && /API_KEY_INVALID|API key not valid/i.test(body)) return 'AI_OFFLINE';
+
+  return 'AI_ERROR';
+}
+
+/**
+ * Ask the model to confirm a track allocation.
  *
  * Throws `AiFallbackError` for every failure mode — no key, provider down,
  * timeout, refusal, or output that does not survive schema validation — so the
  * caller has exactly one thing to catch before falling back to local scoring.
  */
 export async function matchTrackWithAi(answers: readonly string[]): Promise<TrackMatch> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    throw new AiFallbackError('AI_OFFLINE', 'ANTHROPIC_API_KEY is not set.');
+  const key = apiKey();
+  if (!key) {
+    throw new AiFallbackError('AI_OFFLINE', 'GEMINI_API_KEY is not set.');
   }
 
-  const client = new Anthropic({ apiKey, maxRetries: 1 });
+  const client = new GoogleGenAI({ apiKey: key });
 
-  let response;
+  let text: string | undefined;
   try {
-    response = await client.messages.parse(
+    const interaction = await client.interactions.create(
       {
-        model: process.env.ANTHROPIC_MODEL || DEFAULT_MODEL,
-        max_tokens: 2048,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: 'user', content: buildUserMessage(answers) }],
-        output_config: {
-          effort: 'low',
-          format: zodOutputFormat(TrackMatchSchema),
+        model: process.env.GEMINI_MODEL || DEFAULT_MODEL,
+        system_instruction: SYSTEM_PROMPT,
+        input: buildUserMessage(answers),
+        response_format: {
+          type: 'text',
+          mime_type: 'application/json',
+          schema: z.toJSONSchema(ModelOutputSchema) as Record<string, unknown>,
         },
       },
-      { timeout: aiTimeoutMs() },
+      { timeout: aiTimeoutMs(), maxRetries: 1 },
     );
+
+    text = 'output_text' in interaction ? interaction.output_text : undefined;
   } catch (error) {
-    if (error instanceof Anthropic.APIConnectionTimeoutError) {
-      throw new AiFallbackError('AI_TIMEOUT', 'The model took too long.', error);
-    }
-    if (error instanceof Anthropic.APIConnectionError) {
-      throw new AiFallbackError('AI_OFFLINE', 'Could not reach the model provider.', error);
-    }
-    if (error instanceof Anthropic.AuthenticationError) {
-      throw new AiFallbackError('AI_OFFLINE', 'The API key was rejected.', error);
-    }
-    throw new AiFallbackError('AI_ERROR', 'The model request failed.', error);
+    throw new AiFallbackError(classify(error), 'The model request failed.', error);
   }
 
-  if (response.stop_reason === 'refusal') {
-    throw new AiFallbackError('AI_REFUSED', 'The model declined the request.');
+  // Empty output means the model produced nothing usable — a safety stop, or a
+  // response with no text part. Either way there is nothing to validate.
+  if (!text) {
+    throw new AiFallbackError('AI_REFUSED', 'The model returned no output.');
   }
 
-  // Never trust the parsed output on the SDK's word alone — re-validate it,
-  // then rebuild the record from our own data so a hallucinated track name
-  // can never reach the page.
-  const parsed = TrackMatchSchema.safeParse(response.parsed_output);
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch (error) {
+    throw new AiFallbackError('AI_INVALID', 'The model did not return JSON.', error);
+  }
+
+  // Never trust the output on the schema's word alone — re-validate it, then
+  // rebuild the record from our own data so a hallucinated track name can
+  // never reach the page.
+  const parsed = ModelOutputSchema.safeParse(raw);
   if (!parsed.success) {
     throw new AiFallbackError('AI_INVALID', 'The model returned a response we could not use.');
   }
