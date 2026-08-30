@@ -6,6 +6,58 @@ days, one declaration.
 
 ---
 
+## Quick start
+
+Node 20.9+ required.
+
+```bash
+npm install
+npm run dev
+```
+
+Open <http://localhost:3000>. **No environment variables are needed** — the site
+builds and every feature works without an API key. To enable the AI half of the
+Track Matcher, copy `.env.example` to `.env.local` and set `ANTHROPIC_API_KEY`.
+
+## What the AI feature does
+
+The **Track Matcher** allocates a delegate to one of the summit's six tracks from
+three questions.
+
+Answers are scored locally first, by a deterministic weighted model
+(`lib/track-scoring.ts`) that always produces the same allocation for the same
+answers. That ranking is then handed to Claude, which confirms the top track — or
+overrides it with a reason — and writes a sentence or two addressed to the
+delegate. Grounding the model in the local ranking is what keeps the AI and
+non-AI results consistent with each other.
+
+The model is an enhancement, not a dependency.
+
+## How it behaves when the model fails
+
+Every failure path resolves to a real allocation. There is no blank screen, no
+console-only error, and the API always answers `200` with a usable match.
+
+| Failure | What the user sees |
+|---|---|
+| No API key set | **AI currently offline** — matched by the summit's track rules |
+| Provider down or key rejected | as above |
+| Over the 9s deadline | **The AI took too long** — matched by local scoring instead |
+| Malformed or off-schema output | "The AI sent back something we couldn't use" |
+| Model declines | "The AI declined to answer" |
+| Request never returns at all | The browser scores locally itself |
+
+Three independent layers have to fail before the user loses the feature: the
+server falls back to deterministic scoring, the browser falls back again if the
+request never returns, and the UI still has a designed `ERROR` state with a retry.
+Model output is never trusted — it is re-validated with Zod and the result is
+rebuilt from `data/tracks.ts`, so the model cannot invent a track.
+
+Sections 5–9 below cover the architecture, the response schema and each failure
+path in detail, including how to reproduce them by hand.
+
+---
+
 ## 1. Project purpose
 
 The site has one job: **turn an Instagram visitor into a delegate applicant.**
