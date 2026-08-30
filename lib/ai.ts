@@ -12,7 +12,7 @@ import { TrackMatchSchema, type FallbackReason, type TrackMatch } from '@/lib/sc
 // and this tier answers in ~3.5s against a 9s deadline. Measured alternatives:
 // 3.7-flash caps at 20 free requests, 3.5-flash took 12.5s and would miss the
 // deadline outright.
-const DEFAULT_MODEL = 'gemini-2.0-flash';
+const DEFAULT_MODEL = 'gemini-3.5-flash-lite';
 const DEFAULT_TIMEOUT_MS = 9_000;
 
 /**
