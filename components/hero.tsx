@@ -1,5 +1,6 @@
 import { HERO_STATS, SUMMIT } from '@/data/summit';
 import { ParallaxLayer } from '@/components/parallax-layer';
+import { AmbientVideo } from '@/components/ambient-video';
 
 import styles from './hero.module.css';
 
@@ -7,13 +8,11 @@ export function Hero() {
   return (
     <section id="top" className={`tone-ink ${styles.hero}`}>
       <ParallaxLayer className={styles.backdrop} strength={0.12}>
-        <video
+        <AmbientVideo
           src="/hero-video.mp4"
+          poster="/hero-poster.jpg"
+          label="footage of the summit floor"
           className={styles.backdropMedia}
-          autoPlay
-          muted
-          loop
-          playsInline
         />
       </ParallaxLayer>
 

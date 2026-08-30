@@ -1,4 +1,5 @@
 import { Reveal } from '@/components/reveal';
+import { AmbientVideo } from '@/components/ambient-video';
 
 import styles from './closing-night.module.css';
 
@@ -43,13 +44,11 @@ export function ClosingNight() {
           </div>
 
           <figure className={styles.media}>
-            <video
+            <AmbientVideo
               src="/closing-night-video.mp4"
-              autoPlay
-              muted
-              loop
-              playsInline
-              style={{ width: '100%', aspectRatio: '16 / 9', objectFit: 'cover', borderRadius: 'inherit' }}
+              poster="/closing-night-poster.jpg"
+              label="footage of the closing night"
+              className={styles.mediaFrame}
             />
             <figcaption style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', marginTop: '0.5rem' }}>
               <span className="meta meta--orange">Footage 02 / closing night</span>
