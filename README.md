@@ -433,4 +433,3 @@ throughout the project — for scaffolding boilerplate, generating CSS patterns,
 debugging build issues, and accelerating repetitive tasks. All design decisions,
 architectural choices, and creative direction were mine. The AI tools sped up
 implementation but did not drive the product.
-
