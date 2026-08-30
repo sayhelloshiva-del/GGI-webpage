@@ -466,7 +466,7 @@ API was exercised against every failure branch. Real bugs it caught that way:
 - The Gemini SDK's type declarations name `RequestTimeoutError`, but the runtime
   throws `APIConnectionTimeoutError`, so timeouts were being misclassified.
 
-**Google Antigravity (Gemini)** — [note what this was used for].
+**Google Antigravity (Gemini)** was used for asset integration (hero & closing-night videos, speaker portraits), stripping out placeholder copy across all components, resolving Next.js client hydration warnings, configuring and live-testing the `gemini-3.5-flash-lite` model via the Interactions API, and managing the GitHub/Vercel deployment flow.
 
 Everything was reviewed and directed decision by decision; nothing was accepted
 without being run.
