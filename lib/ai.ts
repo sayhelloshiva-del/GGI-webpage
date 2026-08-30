@@ -8,7 +8,11 @@ import { getTrack, TRACKS } from '@/data/tracks';
 import { rankTracks } from '@/lib/track-scoring';
 import { TrackMatchSchema, type FallbackReason, type TrackMatch } from '@/lib/schemas';
 
-const DEFAULT_MODEL = 'gemini-3.7-flash';
+// Flash-Lite: the task is a six-way classification with a short sentence back,
+// and this tier answers in ~3.5s against a 9s deadline. Measured alternatives:
+// 3.7-flash caps at 20 free requests, 3.5-flash took 12.5s and would miss the
+// deadline outright.
+const DEFAULT_MODEL = 'gemini-2.0-flash';
 const DEFAULT_TIMEOUT_MS = 9_000;
 
 /**
@@ -140,7 +144,9 @@ export async function matchTrackWithAi(answers: readonly string[]): Promise<Trac
           schema: z.toJSONSchema(ModelOutputSchema) as Record<string, unknown>,
         },
       },
-      { timeout: aiTimeoutMs(), maxRetries: 1 },
+      // No retry: on a free-tier 429 a second attempt burns the same quota and
+      // pushes past the deadline. Local scoring is the better answer.
+      { timeout: aiTimeoutMs(), maxRetries: 0 },
     );
 
     text = 'output_text' in interaction ? interaction.output_text : undefined;

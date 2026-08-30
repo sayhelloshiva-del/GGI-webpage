@@ -160,7 +160,7 @@ builds, renders and converts without any of them.
 | Variable | Default | Purpose |
 |---|---|---|
 | `GEMINI_API_KEY` | *(unset)* | Enables the AI half of the Track Matcher. Unset ⇒ deterministic scoring, with the offline state shown to the user. |
-| `GEMINI_MODEL` | `gemini-3.7-flash` | Model id. Free-tier eligible. |
+| `GEMINI_MODEL` | `gemini-3.5-flash-lite` | Model id. Free-tier eligible. |
 | `TRACK_MATCH_TIMEOUT_MS` | `9000` | Server-side deadline for the model call. |
 | `NEXT_PUBLIC_SITE_URL` | `https://summit.example.org` | Used for `metadataBase` / Open Graph. |
 
